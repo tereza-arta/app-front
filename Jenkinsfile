@@ -1,15 +1,33 @@
 pipeline {
-  agent any
+  sgent any
+  environment {
+    DOCKERHUB_CREDENTIALS = credentials('docker-hub-credential')
+  }
   stages {
-    stage('Build and Push Inage') {
+    stage('SCM Checkout') {
       steps {
-        script {
-          docker.withRegistry('https://index.docker.io/v1/', 'docker-pat') {
-            docker.build("terezabisharyan/front-repo")
-            docker.image("terezabisharyan/front-repo").push()
-          }
-        }
+        git 'https://github.com/tereza-arta/three-tier-app.git'
       }
+    }
+    stage('Build docker image') {
+      steps {
+        sh 'docker build -t terezabisharyan/front:$BUILD_NUMBER .'
+      }
+    }
+    stage('Login to dockerhub') {
+      steps {
+        sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+      }
+    }
+    stage('Push image') {
+      steps {
+        sh 'docker push terezabisharyan/front:$BUILD_NUMBER'
+      }
+    }
+  }
+  post {
+    always {
+      sh 'docker logout'
     }
   }
 }
