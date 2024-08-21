@@ -16,7 +16,7 @@ jobs:
 
       - name: Build of docker image
         run : |
-          docker build -t terezabisharyan/app-frontend:$IMAGE_TAG .
+          docker build -t terezabisharyan/app-frontend:$IMAGE_TAG ./frontend/
 
       - name: Push image on DockerHub
         run : |
